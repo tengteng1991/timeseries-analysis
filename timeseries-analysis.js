@@ -326,27 +326,28 @@ timeseries.prototype.pixelize = function(options) {
 
 // Iterative Noise Removal
 timeseries.prototype.smoother = function(options) {
-	options = _.extend({
-		period:		1
-	}, options);
-	var i;
-	var j;
-	var l 	= this.data.length;
-	var sum	= 0;
-	
-	// Reset the buffer
-	this.buffer 	= this.data.slice(0);
-	
-	for (j=0;j<options.period;j++) {
-		for (i=3;i<l;i++) {
-			this.buffer[i-1] = [
-				this.buffer[i-1][0],
-				(this.buffer[i-2][1]+this.buffer[i][1])/2
-			];
-		}
-	}
-	this.data = this.buffer;
-	return this;
+        options = _.extend({
+                period:         1
+        }, options);
+        var i;
+        var j;
+        var l   = this.data.length;
+        var sum = 0;
+
+        // Reset the buffer
+        this.buffer     = this.data.slice(0);
+
+        for (j = l-1; j >= options.period-1; j-- ){
+                var cur_sum = 0;
+                for (i = 0; i < options.period; i++){
+                        cur_sum += this.buffer[j-i][1];
+                }
+                this.buffer[j] = [this.buffer[j][0],
+                                cur_sum*1.0/options.period
+                                ];
+        }
+        this.data = this.buffer;
+        return this;
 }
 
 
